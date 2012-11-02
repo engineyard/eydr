@@ -1,0 +1,6 @@
+*.gem
+.bundle
+Gemfile.lock
+pkg/*
+lib/ey_cloud/workspace/
+config.yml

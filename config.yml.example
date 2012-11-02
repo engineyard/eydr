@@ -1,0 +1,6 @@
+dr: 
+  master_public_hostname: <Amazon public hostname of live environment db_master>
+  slave_public_hostname: <Amazon public hostname of disaster recovery environment db_master>
+  master_pass: <Password in /root/.pgpass of live environment db_master>
+  master_environment_name: <Cloud environment name of live environment>
+  slave_environment_name: <Cloud environment name of disaster_recovery environment>

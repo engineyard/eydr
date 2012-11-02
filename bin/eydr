@@ -1,0 +1,12 @@
+#!/usr/bin/env ruby
+$:.unshift(File.expand_path('../../lib', __FILE__))
+require 'ey_cloud/cli'
+
+begin
+  EYCloud::CLI.start
+rescue Interrupt => e
+  # EYCloud.ui.print_exception(e)
+  # EYCloud.ui.say("Quitting...")
+  exit(1)
+end
+
