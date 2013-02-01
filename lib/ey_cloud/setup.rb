@@ -1,6 +1,6 @@
 require 'yaml'
-#require 'engineyard'
 require 'erb'
+require 'fog'
 
 class Setup
   def initialize(options)
@@ -10,11 +10,38 @@ class Setup
   end
 
   def setup
+    mount_volume if @db_type.eql?("mysql")
     download_cookbooks
     modify_cookbooks
     apply_cookbooks
     verify_replication
-  end 
+  end
+  
+  def mount_volume
+    connection_slave = Fog::Compute.new(
+      :provider                 => 'AWS',
+      :aws_secret_access_key    => @aws_secret_access_key,
+      :aws_access_key_id        => @aws_access_key_id,
+      :region                   => @slave_region
+    )
+
+    connection_master = Fog::Compute.new(
+      :provider                 => 'AWS',
+      :aws_secret_access_key    => @aws_secret_access_key,
+      :aws_access_key_id        => @aws_access_key_id,
+      :region                   => @master_region
+    )
+
+    db_slave = connection_slave.servers.all('instance-id' => @db_slave_id).first
+    db_master = connection_master.servers.all('instance-id' => @db_master_id).first
+    
+    #snapshot_id = connection_slave.copy_snapshot(db_master.volumes.find {|x| x.device =~ /\/dev\/sdz2/}.snapshots.last.id, @master_region).body["snapshotId"]
+    snapshot_id = 'snap-f54ef4cc'
+    sleep 5 while connection_slave.snapshots.get(snapshot_id).state != "completed"
+    
+    vol = db_slave.volumes.create(:snapshot_id => snapshot_id, :device => "/dev/sdj3", :availability_zone => db_slave.availability_zone)
+    sleep 5 while connection_slave.describe_volumes("volume-id" => vol.id).body["volumeSet"].first["attachmentSet"].first["status"] != "attached"
+  end
 
   def download_cookbooks
     # Download recipes and exit in the event of a failure
@@ -76,8 +103,8 @@ end
     # Run Chef with replication cookbooks added
     puts "Running updated Chef recipes to configure replication"
     puts ""
+    `ey recipes upload --apply --environment #{@slave_environment_name} #{@account_str}`    
     `ey recipes upload --apply --environment #{@master_environment_name} #{@account_str}`
-    `ey recipes upload --apply --environment #{@slave_environment_name} #{@account_str}`
     puts "When the dasboard shows the Chef run as complete, hit enter to continue"
     STDIN.gets
     
@@ -93,24 +120,42 @@ end
   end
   
   def check_position
-    # Output information to check on replication status
-    puts "The following positions will match if replication is caught up\n"
-    continue = "y"
-    while continue == "y"
-      receiver = `ssh deploy@#{@slave_public_hostname} "ps -efa | pgrep -fl receiver | head -1" |  awk '{print $7}'`
-      sender = `ssh deploy@#{@master_public_hostname} "ps -efa | pgrep -fl sender | head -1" |  awk '{print $9}'`
-      puts "Master: #{sender}"
-      puts "Slave:  #{receiver}"
-      puts ""
-      puts "Would you like to check this information again?"
-      continue = STDIN.gets.chomp!
+    if @db_type.eql?("mysql")
+      puts "Seconds behind master should be 0 if replication is caught up\n"
+      continue = "y"
+      while continue == "y"
+        puts `ssh deploy@#{@slave_public_hostname} "mysql -uroot -p#{@master_pass} -e 'show slave status\\G' | grep Seconds_Behind_Master"`.strip
+        puts ""
+        puts "Would you like to check this information again?"
+        continue = STDIN.gets.chomp!
+      end
+    else
+      # Output information to check on replication status
+      puts "The following positions will match if replication is caught up\n"
+      continue = "y"
+      while continue == "y"
+        receiver = `ssh deploy@#{@slave_public_hostname} "ps -efa | pgrep -fl receiver | head -1" |  awk '{print $7}'`
+        sender = `ssh deploy@#{@master_public_hostname} "ps -efa | pgrep -fl sender | head -1" |  awk '{print $9}'`
+        puts "Master: #{sender}"
+        puts "Slave:  #{receiver}"
+        puts ""
+        puts "Would you like to check this information again?"
+        continue = STDIN.gets.chomp!
+      end
     end
   end    
   
   def verify_replication
     # Success information
-    status = `ssh deploy@#{@slave_public_hostname} 'ps -efa | pgrep -fl receiver | head -1' |  awk '{print $4}'`
-    if status.include? 'receiver'
+    success = false
+    if @db_type.eql?("mysql")      
+      status = `ssh deploy@#{@slave_public_hostname} "mysql -u root -p#{@master_pass} -e 'show slave status\\G' | grep Seconds_Behind_Master"`
+      success = true if status.include? 'Seconds_Behind_Master'
+    else
+      status = `ssh deploy@#{@slave_public_hostname} 'ps -efa | pgrep -fl receiver | head -1' |  awk '{print $4}'`
+      success = true if status.include? 'receiver'
+    end
+    if success
       puts "Replication has been configured."
       puts "Please run 'ey recipes download -e #{@master_environment_name}#{@account_str}' to get the latest cookbooks."
       puts "Add the following line in your main recipes to trigger a failover:  'require_recipe 'db_failover'"
@@ -120,6 +165,7 @@ end
       puts ""
       puts "Chef logs: /var/log/chef.custom.*.log"
       puts "PostgreSQL logs: /db/postgresql/9.1/data/pg_log/postgresql.*.csv"
+      puts "MySQL logs: /db/mysql/<version>/log"      
     end
     puts ""
   end    

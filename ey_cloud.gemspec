@@ -5,8 +5,8 @@ require "ey_cloud/version"
 Gem::Specification.new do |s|
   s.name        = "ey_cloud"
   s.version     = EyCloud::VERSION
-  s.authors     = ["Avrohom Katz"]
-  s.email       = ["akatz@engineyard.com"]
+  s.authors     = ["Matt Doian"]
+  s.email       = ["mdolian@engineyard.com"]
   s.homepage    = ""
   s.summary     = %q{TODO: Write a gem summary}
   s.description = %q{TODO: Write a gem description}
@@ -23,6 +23,4 @@ Gem::Specification.new do |s|
   # s.add_runtime_dependency "rest-client"
   s.add_runtime_dependency "fog" 
   s.add_runtime_dependency "thor"
-  s.add_runtime_dependency "ey_support_api"
-  s.add_runtime_dependency "engineyard"
 end

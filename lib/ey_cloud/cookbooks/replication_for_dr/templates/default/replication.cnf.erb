@@ -3,3 +3,6 @@ server-id                       = <%= @server_id %>
 read-only
 relay-log                       = <%= @datadir %>/slave-relay-bin
 relay-log-index                 = <%= @datadir %>/slave-relay-bin.index
+log-bin                         = <%= @datadir %>/master-bin
+log-bin-index                   = <%= @datadir %>/master-bin.index
+log-slave-updates               = 1

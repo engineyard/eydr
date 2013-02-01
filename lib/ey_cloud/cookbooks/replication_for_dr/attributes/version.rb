@@ -1,4 +1,4 @@
-case @attribute['engineyard']['environment']['db_stack_name']
+case attribute['engineyard']['environment']['db_stack_name']
 when "mysql"
   mysql :version => "5.0.51", :virtual => "5.0", :package => "dev-db/mysql-community", :short_version => "5.0"
 when "mysql5_1"

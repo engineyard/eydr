@@ -29,7 +29,7 @@ end
   
 Chef::Log.info "Master Host: #{node[:master_host]}"
 template "/engineyard/bin/setup_replication.sh" do
-  source "setup_replication.sh.erb"
+  source "setup_postgres_replication.sh.erb"
   owner "root"
   group "root"
   mode 0755

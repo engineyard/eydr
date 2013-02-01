@@ -17,7 +17,7 @@ tunnel_name = 'ssh_tunnel'
 # fill in missing information below
 tunnel_vars = {
   # the host hostname (an IP will work) to ssh to
-  :ssh_hostname => 'ec2-75-101-225-17.compute-1.amazonaws.com',
+  :ssh_hostname => 'ec2-107-20-26-57.compute-1.amazonaws.com',
   # only change this if using a non-default ssh port on the destination host,
   # such as when connecting through a gateway
   :ssh_port => 22,

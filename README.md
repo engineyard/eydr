@@ -1,5 +1,5 @@
-EY Cloud Disaster Recovery for PostgreSQL 9.1
-=============================================
+EY Cloud Disaster Recovery
+==========================
 
 Steps to Configure
 ------------------
@@ -10,6 +10,13 @@ Steps to Configure
   * master environment name
   * slave environment name
   * master database password
+  * database type
+  * master region (MySQL only)
+  * slave region (MySQL only)
+  * master database instance id (MySQL only)
+  * slave database instance id (MySQL only)
+  * AWS access key id (MySQL only)
+  * AWS secret access key  (MySQL only)
 4. Run setup to generate and run Chef recipes on master and slave environments:
   * bundle exec bin/eydr setup --account <account name> --config <config file location>
 5. Download latest recipes and update main custom Chef recipe:

@@ -3,4 +3,12 @@ dr:
   slave_public_hostname: <Amazon public hostname of disaster recovery environment db_master>
   master_pass: <Password in /root/.pgpass of live environment db_master>
   master_environment_name: <Cloud environment name of live environment>
-  slave_environment_name: <Cloud environment name of disaster_recovery environment>
+  slave_environment_name: <Cloud environment name of disaster_ ecovery environment>
+  db_type: <mysql or postgres>
+# the following is only required for MySQL  
+  master_region: <Region where the live environment resides>
+  slave_region: <Region where the disaster recovery environment resides>
+  db_master_id: <Instance id of the live environment's db_master>
+  db_slave_id: <Instance id of the live environment's db_slave>
+  aws_access_key_id: <AWS access key id>
+  aws_secret_access_key: <AQS secret access key>

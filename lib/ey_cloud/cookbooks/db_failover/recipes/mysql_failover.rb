@@ -30,7 +30,7 @@ if ["db_master"].include?(node[:instance_role])
         `/etc/init.d/mysql restart`
       end
     end
-  when "mysql5_15"
+  when "mysql5_5"
     ruby_block "promote-5.5-slave-to-master" do
       block do
         `mysql -u root -p #{node[:owner_pass]} -e 'stop slave;'`
