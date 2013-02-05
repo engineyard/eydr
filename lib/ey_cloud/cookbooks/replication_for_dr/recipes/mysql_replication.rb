@@ -3,7 +3,7 @@
 # Recipe:: mysql_replication
 #
 
-directory "/db2/" do
+directory "/db2" do
   owner "root"
   group "root"
   mode "0755"
@@ -11,9 +11,15 @@ directory "/db2/" do
   action :create
 end
 
-execute "mount-volume" do
-  command "mount -t ext3 /dev/xvdj3 /db2"
-  not_if { `df -h | grep xvdj3` }
+link "/dev/sdj4" do
+  to "/dev/xvdj4"
+  only_if { File.exists?("/dev/xvdj4") }
+end
+
+mount "/db2" do
+  fstype "ext3"
+  device "/dev/xvdj4"
+  action :mount
 end
 
 case node[:mysql][:version]
@@ -40,30 +46,23 @@ template "/root/.mytop" do
   })
 end
 
-ruby_block 'read-master-status' do
-  block do
-    file_contents = File.read("/db/mysql/.snapshot_backup_master_status.txt")
-    node[:master_log_file] = file_contents.match(/File:(.*)\n/)[1].strip
-    node[:master_log_pos] = file_contents.match(/Position:(.*)\n/)[1].strip
-    Chef::Log.info("using master_log_file: " + node[:master_log_file].inspect)
-    Chef::Log.info("using master_log_pos: " + node[:master_log_pos].inspect)
-  end
-end
-
-
 template "/engineyard/bin/setup_replication.sh" do
   source "setup_mysql_replication.sh.erb"
   owner "root"
   group "root"
   mode 0755
   backup 0
-  variables(
-    :master_pass => node[:master_pass],
-    :master_log_file => node[:master_log_file],
-    :master_log_pos => node[:master_log_pos]
-  )
+  variables({
+    :master_pass => node[:master_pass]
+  })
 end
 
 execute "setup-replication" do
   command "/engineyard/bin/setup_replication.sh"
+  not_if "mysql -uroot -p#{node[:master_pass]} -e\"show slave status\G\" | grep 'Seconds_Behind_Master: 0'"
+end
+
+execute "umount-db2" do
+  command "umount /db2"
+  only_if "cat /proc/mounts | grep db2"  
 end

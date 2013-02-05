@@ -10,38 +10,39 @@ class Setup
   end
 
   def setup
-    mount_volume if @db_type.eql?("mysql")
+    vol = attach_volume if @db_type.eql?("mysql")
     download_cookbooks
     modify_cookbooks
     apply_cookbooks
     verify_replication
+    detach_volume(vol) if @db_type.eql?("mysql")
   end
   
-  def mount_volume
-    connection_slave = Fog::Compute.new(
-      :provider                 => 'AWS',
-      :aws_secret_access_key    => @aws_secret_access_key,
-      :aws_access_key_id        => @aws_access_key_id,
-      :region                   => @slave_region
-    )
-
-    connection_master = Fog::Compute.new(
-      :provider                 => 'AWS',
-      :aws_secret_access_key    => @aws_secret_access_key,
-      :aws_access_key_id        => @aws_access_key_id,
-      :region                   => @master_region
-    )
+  def attach_volume
+    connection_slave = get_fog_connection(@slave_region)
+    connection_master = get_fog_connection(@master_region)
 
     db_slave = connection_slave.servers.all('instance-id' => @db_slave_id).first
     db_master = connection_master.servers.all('instance-id' => @db_master_id).first
     
-    #snapshot_id = connection_slave.copy_snapshot(db_master.volumes.find {|x| x.device =~ /\/dev\/sdz2/}.snapshots.last.id, @master_region).body["snapshotId"]
-    snapshot_id = 'snap-f54ef4cc'
+    snapshot_id = connection_slave.copy_snapshot(db_master.volumes.find {|x| x.device =~ /\/dev\/sdz2/}.snapshots.last.id, @master_region).body["snapshotId"]
     sleep 5 while connection_slave.snapshots.get(snapshot_id).state != "completed"
     
-    vol = db_slave.volumes.create(:snapshot_id => snapshot_id, :device => "/dev/sdj3", :availability_zone => db_slave.availability_zone)
-    sleep 5 while connection_slave.describe_volumes("volume-id" => vol.id).body["volumeSet"].first["attachmentSet"].first["status"] != "attached"
+    begin
+      vol = db_slave.volumes.create(:snapshot_id => snapshot_id, :device => "/dev/sdj4", :availability_zone => db_slave.availability_zone)
+      sleep 5 while connection_slave.describe_volumes("volume-id" => vol.id).body["volumeSet"].first["attachmentSet"].first["status"] != "attached"
+    rescue # TO-DO better exception handling
+      puts "Volume could not be attached or is already attached"
+    end
+    vol
   end
+  
+  def detach_volume(vol)
+    connection_slave = get_fog_connection(@slave_region)
+    connection_slave.detach_volume(vol.id)   
+    sleep 5 while connection_slave.describe_volumes("volume-id" => vol.id).body["volumeSet"].first["attachmentSet"].first["status"] == "attached"
+    vol.destroy
+  end 
 
   def download_cookbooks
     # Download recipes and exit in the event of a failure
@@ -49,9 +50,14 @@ class Setup
     `rm -rf #{workspace_path}/*`
     `ey recipes download --environment #{@master_environment_name} #{@account_str}`
     if $?.exitstatus == 1
-      puts "Recipes could not be downloaded from #{@master_environment_name}."
-      puts "Try specifying an account with --account [account name]" if @account_str.eql? ""
-      Process.exit!
+      puts "Recipes could not be downloaded from #{@master_environment_name}. Generic base cookbooks were added."
+      if @account_str.eql? ""
+        puts "Try specifying an account with --account [account name]" 
+      else
+        copy_cookbook("/cookbooks/generic/cookbooks/emerge")
+        copy_cookbook("/cookbooks/generic/cookbooks/main")
+        copy_cookbook("/cookbooks/generic/cookbooks/timezone")
+      end
     end
   end
   
@@ -103,8 +109,8 @@ end
     # Run Chef with replication cookbooks added
     puts "Running updated Chef recipes to configure replication"
     puts ""
+    `ey recipes upload --apply --environment #{@master_environment_name} #{@account_str}`    
     `ey recipes upload --apply --environment #{@slave_environment_name} #{@account_str}`    
-    `ey recipes upload --apply --environment #{@master_environment_name} #{@account_str}`
     puts "When the dasboard shows the Chef run as complete, hit enter to continue"
     STDIN.gets
     
@@ -181,5 +187,14 @@ end
   def copy_cookbook(path)
     FileUtils.cp_r(File.join(current_path, path), "#{workspace_path}/cookbooks/")
   end   
-
+  
+  def get_fog_connection(region)
+    connection = Fog::Compute.new(
+      :provider                 => 'AWS',
+      :aws_secret_access_key    => @aws_secret_access_key,
+      :aws_access_key_id        => @aws_access_key_id,
+      :region                   => region
+    )
+    connection
+  end
 end
