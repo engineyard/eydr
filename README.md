@@ -17,9 +17,12 @@ Steps to Configure
   * slave database instance id (MySQL only)
   * AWS access key id (MySQL only)
   * AWS secret access key  (MySQL only)
-4. Run setup to generate and run Chef recipes on master and slave environments:
+3. ronin open each environment to install your SSH key
+4. Ensure you are collaborator on the account
+5. Take a snapshot on the master environment
+5. Run setup to generate and run Chef recipes on master and slave environments:
   * bundle exec bin/eydr setup --account <account name> --config <config file location>
-5. Download latest recipes and update main custom Chef recipe:
+6. Download latest recipes and update main custom Chef recipe:
   * ey recipes download --environment <master environment name>
   * Add to cookbooks/main/recipes/default.rb: #require_recipe "db_failover"
 
