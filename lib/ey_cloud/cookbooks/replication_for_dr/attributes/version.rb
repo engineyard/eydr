@@ -9,4 +9,6 @@ when "postgres9"
   postgresql :version => "9.0.4-r2", :virtual => "9.0", :package => "dev-db/postgresql-base", :short_version => "9.0"
 when "postgres9_1"
   postgresql :version => "9.1.1", :virtual => "9.1", :package => "dev-db/postgresql-base", :short_version => "9.1"
+when "postgres9_2"
+  postgresql :version => "9.2.4", :virtual => "9.2", :package => "dev-db/postgresql-base", :short_version => "9.2"
 end
