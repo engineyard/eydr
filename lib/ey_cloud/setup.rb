@@ -40,7 +40,10 @@ class Setup
   def detach_volume(vol)
     connection_slave = get_fog_connection(@slave_region)
     connection_slave.detach_volume(vol.id)   
-    sleep 5 while connection_slave.describe_volumes("volume-id" => vol.id).body["volumeSet"].first["attachmentSet"].first["status"] == "attached"
+    until connection_slave.describe_volumes("volume-id" => vol.id).body["volumeSet"].first["attachmentSet"].first["status"] != "attached" do
+      puts "STATUS: #{connection_slave.describe_volumes('volume-id' => vol.id).body['volumeSet'].first['attachmentSet'].first['status']}"
+      sleep 5
+    end
     vol.destroy
   end 
 
@@ -54,9 +57,7 @@ class Setup
       if @account_str.eql? ""
         puts "Try specifying an account with --account [account name]" 
       else
-        copy_cookbook("/cookbooks/generic/cookbooks/emerge")
         copy_cookbook("/cookbooks/generic/cookbooks/main")
-        copy_cookbook("/cookbooks/generic/cookbooks/timezone")
       end
     end
   end
@@ -130,7 +131,7 @@ end
       puts "Seconds behind master should be 0 if replication is caught up\n"
       continue = "y"
       while continue == "y"
-        puts `ssh deploy@#{@slave_public_hostname} "mysql -uroot -p#{@master_pass} -e 'show slave status\\G' | grep Seconds_Behind_Master"`.strip
+        puts `ssh root@#{@slave_public_hostname} "mysql -uroot -p#{@master_pass} -e 'show slave status\\G' | grep Seconds_Behind_Master"`.strip
         puts ""
         puts "Would you like to check this information again?"
         continue = STDIN.gets.chomp!
@@ -140,8 +141,8 @@ end
       puts "The following positions will match if replication is caught up\n"
       continue = "y"
       while continue == "y"
-        receiver = `ssh deploy@#{@slave_public_hostname} "ps -efa | pgrep -fl receiver | head -1" |  awk '{print $7}'`
-        sender = `ssh deploy@#{@master_public_hostname} "ps -efa | pgrep -fl sender | head -1" |  awk '{print $9}'`
+        receiver = `ssh root@#{@slave_public_hostname} "ps -efa | pgrep -fl receiver | head -1" |  awk '{print $7}'`
+        sender = `ssh root@#{@master_public_hostname} "ps -efa | pgrep -fl sender | head -1" |  awk '{print $9}'`
         puts "Master: #{sender}"
         puts "Slave:  #{receiver}"
         puts ""
@@ -155,10 +156,10 @@ end
     # Success information
     success = false
     if @db_type.eql?("mysql")      
-      status = `ssh deploy@#{@slave_public_hostname} "mysql -u root -p#{@master_pass} -e 'show slave status\\G' | grep Seconds_Behind_Master"`
+      status = `ssh root@#{@slave_public_hostname} "mysql -u root -p#{@master_pass} -e 'show slave status\\G' | grep Seconds_Behind_Master"`
       success = true if status.include? 'Seconds_Behind_Master'
     else
-      status = `ssh deploy@#{@slave_public_hostname} 'ps -efa | pgrep -fl receiver | head -1' |  awk '{print $4}'`
+      status = `ssh root@#{@slave_public_hostname} 'ps -efa | pgrep -fl receiver | head -1' |  awk '{print $4}'`
       success = true if status.include? 'receiver'
     end
     if success

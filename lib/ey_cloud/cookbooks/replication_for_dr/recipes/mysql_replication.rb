@@ -11,14 +11,9 @@ directory "/db2" do
   action :create
 end
 
-link "/dev/sdj4" do
-  to "/dev/xvdj4"
-  only_if { File.exists?("/dev/xvdj4") }
-end
-
 mount "/db2" do
   fstype "ext3"
-  device "/dev/xvdj4"
+  device "/dev/#{node[:replication_mount]}"
   action :mount
 end
 

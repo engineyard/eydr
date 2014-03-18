@@ -3,7 +3,23 @@
 # Recipe:: master_configuration
 #
 
-if node[:engineyard][:environment][:db_stack_name] =~ /postgres9(.*)/
+case node[:engineyard][:environment][:db_stack_name]
+when /mysql(.*)/
+  if ["solo"].include?(node[:instance_role])
+    remote_file "/etc/mysql.d/logbin.cnf" do
+      source "logbin.cnf"
+      owner "root"
+      group "root"
+      mode 0600
+      backup 0
+    end
+
+    execute "restart-mysql" do
+      command "/etc/init.d/mysql restart"
+    end
+  end
+
+when /postgres9(.*)/
   postgres_root    = '/db/postgresql'
   postgres_version = "#{node['postgresql']['short_version']}"
 

@@ -17,7 +17,7 @@ tunnel_name = 'ssh_tunnel'
 # fill in missing information below
 tunnel_vars = {
   # the host hostname (an IP will work) to ssh to
-  :ssh_hostname => 'ec2-54-234-142-140.compute-1.amazonaws.com',
+  :ssh_hostname => 'ec2-184-73-99-122.compute-1.amazonaws.com',
   # only change this if using a non-default ssh port on the destination host,
   # such as when connecting through a gateway
   :ssh_port => 22,
@@ -54,7 +54,7 @@ tunnel_vars = {
 
 # set this to match on the node[:instance_role] of the instance the tunnel
 # should be set up on
-if node[:instance_role] == 'db_master'
+if ["db_master", "solo"].include?(node[:instance_role])
 
   template "/etc/init.d/#{tunnel_name}" do
     source "ssh_tunnel.initd.erb"

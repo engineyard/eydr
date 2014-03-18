@@ -3,7 +3,7 @@
 # Recipe:: default
 #
 
-if ["db_master"].include?(node[:instance_role])
+if ["db_master", "solo"].include?(node[:instance_role])
 
   case node[:engineyard][:environment][:db_stack_name]
   when /mysql(.*)/
