@@ -3,29 +3,6 @@
 # Recipe:: mysql_replication
 #
 
-# Set datadir and logbase depending on MySQL version
-case node[:mysql][:version]
-when "5.0.51"
-  datadir="/db/mysql"
-  logbase="/db/mysql/log/"
-else
-  datadir="/db/mysql/#{node['mysql']['short_version']}/data"
-  logbase="/db/mysql/#{node['mysql']['short_version']}/log/"
-end
-
-file "/home/deploy/id_rsa" do
-  source "id_rsa.pub"
-  owner node[:owner_name]
-  group node[:owner_name]
-  mode 0600
-end
-
-bash "authorize-keys" do
-  code "cat /home/#{node[:owner_name]}/id_rsa.pub >> /home/#{node[:owner_name]}/.ssh/extra_authorized_keys"
-  not_if 'grep "`cat /home/deploy/id_rsa.pub`" /home/deploy/.ssh/extra_authorized_keys'
-  only_if { File.exists?("/home/#{node[:owner_name]}/id_rsa.pub") }
-end
-
 # Download xtrabackup from URL specificed in attributes
 bash "download-xtrabackup" do
   user node['owner_name']
@@ -85,11 +62,11 @@ template "/etc/mysql.d/replication.cnf" do
   source "replication.cnf.erb"
   variables({
     :server_id => node[:engineyard][:this].split("-")[1].to_i(16),
-    :datadir => datadir
+    :datadir => node[:datadir]
   })
 end
 
-# Render the script that sets up replication
+# Render the script to setup replication
 template "/engineyard/bin/setup_replication.sh" do
   source "setup_mysql_replication.sh.erb"
   owner "root"
@@ -100,7 +77,7 @@ template "/engineyard/bin/setup_replication.sh" do
     :master_pass => node[:owner_pass],
     :initiate_hostname => node[:dr_replication][:initiate][:public_hostname],
     :slave_public_hostname => node[:dr_replication][:slave][:public_hostname],
-    :datadir => datadir,
+    :datadir => node[:datadir],
     :user => node[:owner_name],
     :db_name => node[:engineyard][:environment][:apps].first[:database_name],
     :db_pass => node[:owner_pass],

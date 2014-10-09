@@ -1,19 +1,14 @@
 #
-# Cookbook Name:: db_failover
+# Cookbook Name:: dr_failover
 # Recipe:: default
 #
 
-if (db_master? || solo?) && (node[:ec2][:public_hostname] == node[:replication][:slave][:public_hostname])
-
-  if node[:failover]
-    case node[:engineyard][:environment][:db_stack_name]
-    when /mysql(.*)/
-      include_recipe "db_failover::mysql_failover"
-    when /postgres9(.*)/
-      include_recipe "db_failover::postgresql_failover"
-    end
+if node[:failover] && node[:ec2][:public_hostname] == node[:dr_replication][:slave][:public_hostname]
+  if db_master? || solo?
+    include_recipe "dr_failover::#{node['engineyard']['environment']['db_stack_name'].split(/[1..9]/).first}_failover"
   end
 
-  include_recipe "db_failover::monitoring"
-
+  if node[:dns_failover][:enabled] && app_master?
+    include_recipe "dr_failover::dns_failover"
+  end
 end

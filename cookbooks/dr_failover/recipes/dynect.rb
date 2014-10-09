@@ -19,6 +19,6 @@ template "/engineyard/bin/dynect_update.rb" do
   })
 end
 
-execute "dynect-update" do
-  command "/engineyard/bin/dynect_update.rb"
+bash "dynect-update" do
+  code "/engineyard/bin/dynect_update.rb"
 end

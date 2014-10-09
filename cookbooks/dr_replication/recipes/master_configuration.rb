@@ -32,7 +32,7 @@ when /postgres9(.*)/
     command "echo 'host    replication     postgres        127.0.0.1/32              md5' >> #{postgres_root}/#{postgres_version}/custom_pg_hba.conf"
     not_if "grep 'host    replication     postgres        127.0.0.1/32              md5' #{postgres_root}/#{postgres_version}/custom_pg_hba.conf"
   end
-  
+
   execute "reload-postgres-config" do
     command "su - postgres -c 'pg_ctl reload -D #{postgres_root}/#{postgres_version}/data/'"
   end

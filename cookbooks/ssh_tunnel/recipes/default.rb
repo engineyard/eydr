@@ -17,16 +17,16 @@ tunnel_name = 'ssh_tunnel'
 # fill in missing information below
 tunnel_vars = {
   # the host hostname (an IP will work) to ssh to
-  :ssh_hostname => node[:replication][:initiate][:public_hostname],
+  :ssh_hostname => node[:dr_replication][:initiate][:public_hostname],
   # only change this if using a non-default ssh port on the destination host,
   # such as when connecting through a gateway
   :ssh_port => 22,
   # the system user account to use when logging into the destination host
-  :ssh_user => 'root',
+  :ssh_user => node[:owner_name],
   # the path to the private key on the instance the tunnel is from
-  :ssh_private_key => '/root/.ssh/id_rsa',
+  :ssh_private_key => "/home/#{node[:owner_name]}/.ssh/id_rsa",
   # the path to the public key on the instance the tunnel is from
-  :ssh_public_key => '/root/.ssh/id_rsa.pub',
+  :ssh_public_key => "/home/#{node[:owner_name]}/.ssh/id_rsa.pub",
   # the port that will be being forwarded
   :connect_port => connect_port,
   # the host on the remote side (or local side for a reverse tunnel)

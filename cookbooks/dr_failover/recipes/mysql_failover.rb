@@ -1,5 +1,5 @@
 #
-# Cookbook Name:: db_failover
+# Cookbook Name:: dr_failover
 # Recipe:: mysql_failover
 #
 
@@ -11,7 +11,7 @@ end
 execute "remove-replication-configuration" do
   command "rm /etc/mysql.d/replication.cnf"
   only_if { File.exists?("/etc/mysql.d/replication.cnf") }
-end  
+end
 
 execute "remote-replication-relay-files" do
   command "rm /db/mysql/*relay*"
@@ -37,7 +37,7 @@ when "mysql5_5"
       `mysql -u root -p#{node[:owner_pass]} -e 'flush privileges;'`
     end
   end
-end  
+end
 
 execute "restart-mysql" do
   command "/etc/init.d/mysql restart"
