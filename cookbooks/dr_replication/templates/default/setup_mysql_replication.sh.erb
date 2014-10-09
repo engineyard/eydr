@@ -1,0 +1,27 @@
+#!/bin/sh
+/etc/init.d/mysql stop
+
+rm -rf <%= @datadir %>/*
+
+ssh -i /home/<%= @user %>/id_rsa -p 22 -o StrictHostKeyChecking=no root@<%= @initiate_hostname %> 'innobackupex --user root --pass <%= @master_pass %> --slave-info --safe-slave-backup --compress --stream=xbstream /doesntneedtoexist | ssh -o StrictHostKeyChecking=no <%= @user %>@<%= @slave_public_hostname %> "sudo xbstream -x -C <%= @datadir %>/"'
+
+cd <%= @datadir %> && for bf in `find . -iname "*\.qp"`; do qpress -df $bf $(dirname $bf) && rm $bf; done
+
+innobackupex --apply-log --use-memory=1G <%= @datadir %>/
+
+chown -R mysql:mysql /db/mysql/
+
+/etc/init.d/mysql start
+
+slave_status=`mysql -u root -p<%= @master_pass %> -e "show slave status \G"`
+if [ ! -z "$slave_status" ]; then mysql -u root -p<%= @master_pass %> -e "stop slave"; fi
+
+master_log_file=`cat <%= @datadir %>/xtrabackup_slave_info | awk '{print $4}'`
+master_log_pos=`cat <%= @datadir %>/xtrabackup_slave_info | awk '{print $5}'`
+
+mysql -u root -p<%= @master_pass %> -e "GRANT ALL PRIVILEGES ON <%= @db_name %>.* TO '<%= @db_user %>'@'%' IDENTIFIED BY '<%= @db_pass %>';"
+
+mysql -u root -p<%= @master_pass %> -e "CHANGE MASTER TO MASTER_HOST='127.0.0.1', MASTER_PORT=3307, MASTER_USER='replication', MASTER_PASSWORD='<%= @master_pass %>', $master_log_file $master_log_pos ;"
+mysql -u root -p<%= @master_pass %> -e "start slave;"
+
+sed -i '/skip-slave-start/d' /etc/mysql.d/replication.cnf
