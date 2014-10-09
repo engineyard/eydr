@@ -1,5 +1,5 @@
 #
-# Cookbook Name:: replication_for_dr
+# Cookbook Name:: dr_replication
 # Recipe:: postgresql_replication
 #
 

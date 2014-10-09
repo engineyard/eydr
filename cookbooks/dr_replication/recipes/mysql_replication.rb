@@ -1,61 +1,9 @@
 #
-# Cookbook Name:: replication_for_dr
+# Cookbook Name:: dr_replication
 # Recipe:: mysql_replication
 #
 
-# Download xtrabackup from URL specificed in attributes
-bash "download-xtrabackup" do
-  user node['owner_name']
-  cwd "/home/#{node['owner_name']}/"
-  code "wget #{node[:dr_replication][:xtrabackup_download_url]}"
-  not_if { File.exists? "/home/#{node['owner_name']}/#{node[:dr_replication][:xtrabackup_download_url].split("/").last}"}
-end
-
-# Untar xtrabackup
-bash "untar-xtrabackup" do
-  user node['owner_name']
-  cwd "/home/#{node['owner_name']}/"
-  code "tar zxvf #{node[:dr_replication][:xtrabackup_download_url].split("/").last}"
-end
-
-# Copy xtrabackup into /usr/bin so that it's in the PATH
-bash "copy-xtrabackup" do
-  user "root"
-  code "cp /home/#{node['owner_name']}/#{node[:dr_replication][:xtrabackup_download_url].split("/").last.split("-")[0..2].join("-")}*/bin/* /usr/bin/"
-end
-
-# Ensure proper ownership
-bash "chown-xtrabackup" do
-  user "root"
-  cwd "/usr/bin/"
-  code "chown #{node['owner_name']}:#{node['owner_name']} innobackupex xbcrypt xbstream xtrabackup*"
-end
-
-# Install libaio (required for xtrabackup)
-package "dev-libs/libaio" do
-  action :install
-end
-
-# Download qpress from the URL specified in attributes (used for compression)
-bash "download-qpress" do
-  user node['owner_name']
-  cwd "/home/#{node['owner_name']}/"
-  code "wget #{node[:dr_replication][:qpress_download_url]}"
-  not_if { File.exists? "/home/#{node['owner_name']}/#{node[:dr_replication][:qpress_download_url].split("/").last}"}
-end
-
-# Untar qpress
-bash "copy-qpress" do
-  user node['owner_name']
-  cwd "/home/#{node['owner_name']}/"
-  code "tar xvf #{node[:dr_replication][:qpress_download_url].split("/").last}"
-end
-
-# Copy apress into /usr/bin so that it's in the PATH
-bash "copy-qpress" do
-  user "root"
-  code "cp /home/#{node['owner_name']}/qpress /usr/bin/"
-end
+include_recipe "dr_replication::install_xtrabackup"
 
 # Drop slave replication settings in place
 template "/etc/mysql.d/replication.cnf" do
@@ -89,13 +37,5 @@ end
 if node[:establish_replication]
   bash "setup-replication" do
     code "/engineyard/bin/setup_replication.sh > /home/#{node['owner_name']}/setup_replication.log 2>&1"
-  end
-
-  # Add monitoring if configuring replication
-  execute "add-mysql-replication-monitoring" do
-    command 'sed -i \'s|Exec "mysql" "/engineyard/bin/check_mysql.sh" "connections"|Exec "mysql" "/engineyard/bin/check_mysql.sh" "connections"\n      Exec "mysql" "/engineyard/bin/check_mysql.sh" "replication" "8000" "40000"|g\' /etc/engineyard/collectd.conf'
-    action :run
-    not_if "grep 'replication' /etc/engineyard/collectd.conf"
-    only_if "test -f /etc/engineyard/collectd.conf"
   end
 end

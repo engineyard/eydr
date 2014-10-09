@@ -21,30 +21,7 @@ file "/home/#{node[:owner_name]}/.ssh/id_rsa.pub" do
   content keys["public_key"]
 end
 
-ssh_keys = [keys["public_key"]]
-
-["extra_authorized_keys", "authorized_keys"].each do |key|
-  # Loading existing keys
-  if File.exists?("/home/#{node[:owner_name]}/.ssh/#{key}")
-    File.open("/home/#{node[:owner_name]}/.ssh/#{key}").each do |line|
-      if line.start_with?("ssh")
-        ssh_keys += Array(line.delete "\n")
-      end
-    end
-  end
-
-  ssh_keys.uniq!
-
-  template "/home/#{node[:owner_name]}/.ssh/#{key}" do
-    source "authorized_keys.erb"
-    owner node[:owner_name]
-    group node[:owner_name]
-    mode 0600
-    variables :ssh_keys => ssh_keys
-  end
-end
-
-if node[:engineyard][:environment][:db_stack_name] =~ /postgres9(.*)/
+if node[:engineyard][:environment][:db_stack_name] == /postgres/
 
   directory "/var/lib/postgresql/.ssh/" do
     owner "postgres"
@@ -54,8 +31,8 @@ if node[:engineyard][:environment][:db_stack_name] =~ /postgres9(.*)/
     action :create
   end
 
-  execute "touch-postgresql-authorized-keys" do
-    command "touch /var/lib/postgresql/.ssh/authorized_keys"
+  bash "touch-postgresql-authorized-keys" do
+    code "touch /var/lib/postgresql/.ssh/authorized_keys"
     not_if { File.exists?('/var/lib/postgresql/.ssh/authorized_keys') }
   end
 

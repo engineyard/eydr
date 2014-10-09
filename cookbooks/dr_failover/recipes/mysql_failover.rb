@@ -3,18 +3,18 @@
 # Recipe:: mysql_failover
 #
 
-execute "remove-replication-configuration" do
-  command "rm /db/mysql/master.info"
+bash "remove-replication-configuration" do
+  code "rm /db/mysql/master.info"
   only_if { File.exists?("/db/mysql/master.info") }
 end
 
-execute "remove-replication-configuration" do
-  command "rm /etc/mysql.d/replication.cnf"
+bash "remove-replication-configuration" do
+  code "rm /etc/mysql.d/replication.cnf"
   only_if { File.exists?("/etc/mysql.d/replication.cnf") }
 end
 
-execute "remote-replication-relay-files" do
-  command "rm /db/mysql/*relay*"
+bash "remote-replication-relay-files" do
+  code "rm /db/mysql/*relay*"
   only_if { File.exists?("/db/mysql/relay-log.info") }
 end
 
@@ -39,6 +39,6 @@ when "mysql5_5"
   end
 end
 
-execute "restart-mysql" do
-  command "/etc/init.d/mysql restart"
+bash "restart-mysql" do
+  code "/etc/init.d/mysql restart"
 end

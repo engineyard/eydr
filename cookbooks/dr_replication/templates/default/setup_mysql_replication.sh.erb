@@ -3,7 +3,7 @@
 
 rm -rf <%= @datadir %>/*
 
-ssh -i /home/<%= @user %>/id_rsa -p 22 -o StrictHostKeyChecking=no root@<%= @initiate_hostname %> 'innobackupex --user root --pass <%= @master_pass %> --slave-info --safe-slave-backup --compress --stream=xbstream /doesntneedtoexist | ssh -o StrictHostKeyChecking=no <%= @user %>@<%= @slave_public_hostname %> "sudo xbstream -x -C <%= @datadir %>/"'
+ssh -i /home/<%= @user %>/.ssh/id_rsa -p 22 -o StrictHostKeyChecking=no <%= @db_user %>@<%= @initiate_hostname %> 'innobackupex --user <%= @db_user %> --pass <%= @master_pass %> --slave-info --safe-slave-backup --compress --stream=xbstream /doesntneedtoexist | ssh -o StrictHostKeyChecking=no <%= @user %>@<%= @slave_public_hostname %> "sudo xbstream -x -C <%= @datadir %>"'
 
 cd <%= @datadir %> && for bf in `find . -iname "*\.qp"`; do qpress -df $bf $(dirname $bf) && rm $bf; done
 
