@@ -3,7 +3,7 @@
 # Recipe:: keys
 #
 
-if[:dr_repication][:use_metadata_key]
+if[:dr_replication][:use_metadata_key]
   encrypted_data_bag_secret = metadata_any_get_with_default("encrypted_data_bag_secret", "<ADD TO METADATA>")
 
   file "/etc/chef/encrypted_data_bag_secret" do
