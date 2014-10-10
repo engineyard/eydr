@@ -4,7 +4,7 @@
 #
 
 # Drop slave replication settings in place
-template "#{node[:datadir]}/recovery.conf" do
+template "/db/postgresql/#{node[:postgresql][:short_version]}/data/recovery.conf" do
   source "recovery.conf.erb"
   owner "postgres"
   group "postgres"
