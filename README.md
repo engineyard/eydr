@@ -23,14 +23,14 @@ ssh-keygen -t rsa -b 2048 -f ./id_rsa
 
 5. Add the SSH key generated in step 4 to the dashboard.
 
-6. Ensure a knife.rb file is configured on local machine:
+6. Ensure a knife.rb file is configured on your local machine:
 
 ```
 node_name           “solo”
 data_bag_path       "<cookbook_path>/data_bags"
 ```
 
-7. Create a json file containing a public and private key to be used by the SSH tunnel (see dr_keys.json.example).
+7. Create a json file containing a public and private key to be used by the SSH tunnel. Replace any carriage returns with \n so that the key is on one line in the json (see dr_keys.json.example).
 8. Create an encrypted data bag containing the ssh keys:
 
 ```
