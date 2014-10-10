@@ -3,6 +3,18 @@
 # Recipe:: keys
 #
 
+if[:dr_repication][:use_metadata_key]
+  encrypted_data_bag_secret = metadata_any_get_with_default("encrypted_data_bag_secret", "<ADD TO METADATA>")
+
+  file "/etc/chef/encrypted_data_bag_secret" do
+    owner node[:owner_name]
+    group node[:owner_name]
+    mode 0600
+    action :nothing
+    content encrypted_data_bag_secret
+  end.run_action(:create);
+end
+
 keys = Chef::EncryptedDataBagItem.load("dr_keys", node[:environment][:framework_env])
 
 file "/home/#{node[:owner_name]}/.ssh/id_rsa" do
