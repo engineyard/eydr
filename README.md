@@ -46,7 +46,6 @@ Boot and Configure
 
 ```
 default[:dr_replication] = {
-  :use_metadata_key => false, # Set to true to pull data bag encryption key from metadata
   :master => {
     :public_hostname => "" # The public hostname of the master database
   },
@@ -57,8 +56,9 @@ default[:dr_replication] = {
     :public_hostname => "" # The public hostname of the slave database
   }
 
-default[:establish_replication] = true # Set to true to establish replication when Chef runs
-default[:failover] = false # Set to true to failover to slave environment when Chef runs
+default[:use_metadata_key] => true # Set to true to pull data bag encryption key from metadata
+default[:establish_replication] = false # Set to true to establish replication during Chef run
+default[:failover] = false # Set to true to failover to D/R environment during Chef run
 ```
 
 3. If you do not want to use metadata for the encryption key, upload the encryption key to /etc/chef/ on all instances:

@@ -3,7 +3,7 @@
 # Recipe:: keys
 #
 
-if[:dr_replication][:use_metadata_key]
+if[:use_metadata_key]
   encrypted_data_bag_secret = metadata_any_get_with_default("encrypted_data_bag_secret", "<ADD TO METADATA>")
 
   file "/etc/chef/encrypted_data_bag_secret" do
@@ -33,8 +33,7 @@ file "/home/#{node[:owner_name]}/.ssh/id_rsa.pub" do
   content keys["public_key"]
 end
 
-if node[:engineyard][:environment][:db_stack_name] == /postgres/
-
+if node[:engineyard][:environment][:db_stack_name] =~ /postgres/
   directory "/var/lib/postgresql/.ssh/" do
     owner "postgres"
     group "postgres"
