@@ -46,6 +46,7 @@ Boot and Configure
 
 ```
 default[:dr_replication] = {
+  :use_metadata_key => false, # Set to true to pull data bag encryption key from metadata
   :master => {
     :public_hostname => "" # The public hostname of the master database
   },
@@ -60,13 +61,15 @@ default[:establish_replication] = true # Set to true to establish replication wh
 default[:failover] = false # Set to true to failover to slave environment when Chef runs
 ```
 
-3. Upload the encrypted data bag key to all instances to /etc/chef/
+3. If you do not want to use metadata for the encryption key, upload the encryption key to /etc/chef/ on all instances:
 
 ```
 for server in `ey servers -Su -e <env> --account=JobMatcher` ; do scp -o StrictHostKeyChecking=no ~/.chef/encrypted_data_bag_secret $server:/home/deploy/; ssh -o StrictHostKeyChecking=no $server 'sudo mv /home/deploy/encrypted_data_bag_secret /etc/chef/';  done
 ```
 
-4. Upload and apply Chef cookbooks:
+4. If you are using metadata for the encryption key, add it to the account as encrypted_data_bag_secret.  Replace any carriage returns with \n so that the key is on one line in the json.
+
+5. Upload and apply Chef cookbooks:
 
 ```
 ey recipes upload --apply -e <master_environment_name>

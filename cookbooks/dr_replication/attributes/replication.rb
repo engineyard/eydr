@@ -1,5 +1,5 @@
 default[:dr_replication] = {
-  :use_metadata_key => true,
+  :use_metadata_key => true, # Set to true to pull data bag encryption key from metadata
   :master => {
     :public_hostname => "ec2-54-234-251-237.compute-1.amazonaws.com"
   },
