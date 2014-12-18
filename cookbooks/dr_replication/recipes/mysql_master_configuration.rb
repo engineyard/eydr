@@ -17,6 +17,6 @@ if solo?
   end
 end
 
-if db_master? || solo?
+if db_server?
   include_recipe "dr_replication::install_xtrabackup"
 end

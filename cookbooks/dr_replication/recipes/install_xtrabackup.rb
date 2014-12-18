@@ -19,7 +19,7 @@ end
 # Copy xtrabackup into /usr/bin so that it's in the PATH
 bash "copy-xtrabackup" do
   user "root"
-  code "cp /home/#{node['owner_name']}/#{node[:dr_replication][:xtrabackup_download_url].split("/").last.split("-")[0..2].join("-")}*/bin/* /usr/bin/"
+  code "yes | cp -ruf /home/#{node['owner_name']}/#{node[:dr_replication][:xtrabackup_download_url].split("/").last.split("-")[0..2].join("-")}*/bin/* /usr/bin/"
 end
 
 # Ensure proper ownership
@@ -52,5 +52,5 @@ end
 # Copy apress into /usr/bin so that it's in the PATH
 bash "copy-qpress" do
   user "root"
-  code "cp /home/#{node['owner_name']}/qpress /usr/bin/"
+  code "yes | cp -ruf /home/#{node['owner_name']}/qpress /usr/bin/"
 end

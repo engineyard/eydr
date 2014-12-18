@@ -3,7 +3,7 @@
 # Recipe:: default
 #
 
-if node[:failover] && node[:ec2][:public_hostname] == node[:dr_replication][:slave][:public_hostname]
+if node[:failover] && node[:ec2][:public_hostname] == node[:dr_replication][node[:environment][:framework_env]][:slave][:public_hostname]
   if db_master? || solo?
     include_recipe "dr_failover::#{node['engineyard']['environment']['db_stack_name'].split(/[0..9]/).first}_failover"
   end
