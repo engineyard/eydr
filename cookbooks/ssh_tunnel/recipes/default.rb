@@ -17,7 +17,7 @@ tunnel_name = 'ssh_tunnel'
 # fill in missing information below
 tunnel_vars = {
   # the host hostname (an IP will work) to ssh to
-  :ssh_hostname => node[:dr_replication][node[:environment][:framework_env]][:initiate][:public_hostname],
+  :ssh_hostname => node[:dr_replication][node[:environment][:framework_env]][:master][:public_hostname],
   # only change this if using a non-default ssh port on the destination host,
   # such as when connecting through a gateway
   :ssh_port => 22,

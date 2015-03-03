@@ -1,9 +1,11 @@
 EY Cloud Disaster Recovery
 ==========================
 
-Pre-Requisites (EY)
+*You must have version 3.0+ of the engineyard gem in order for the data bag portion of this process to work correctly.*
+
+Pre-Requisites
 -------------------
-1. Add yourself as collaborator to the account.
+1. If you don't own the account, ensure you are a collaborator on the account.
 2. Ensure the following gems are installed locally:
 
 * chef (10.16.4)
@@ -37,12 +39,13 @@ data_bag_path       "<cookbook_path>/data_bags"
 EDITOR=vi knife solo data bag create dr_keys <FRAMEWORK_ENV> --json-file <framework_env>.json --secret-file ~/.chef/encrypted_data_bag_secret
 ```
 
-9. Update the slave environment database password to match the master environment database password.  This must be done via the awsm console and can not be done by customers. (DOC-2184)
+9. In another region, configure an environment identical to the live environment and boot instances.
 
-Boot and Configure (EY or Customer)
------------------------------------
-1. In another region, configure an environment identical to the live environment and boot instances.
-2. Configure the following attributes in the dr_replication cookbook:
+10. An Engine Yard Support Engineer must update the slave environment database password to match the master environment database password.  This must be done via the awsm console and can not be done by customers. (DOC-2184)
+
+Configure
+---------
+1. Configure the following attributes in the dr_replication cookbook:
 
 ```
 default[:dr_replication] = {
@@ -51,10 +54,10 @@ default[:dr_replication] = {
       :public_hostname => "" # The public hostname of the master database
     },
     :initiate => {
-      :public_hostname => "" # The public hostname of the database you want to rsync the data from (can be db_slave)
+      :public_hostname => "" # The public hostname of the database you want to sync the data from (can be the slave or master)
     },
     :slave => {
-      :public_hostname => "" # The public hostname of the slave database
+      :public_hostname => "" # The public hostname of the disaster recovery database
     }
   }
 
@@ -63,15 +66,15 @@ default[:dr_replication] = {
   default[:failover] = false # Set to true to failover to D/R environment during Chef run
 ```
 
-3. If you do not want to use metadata for the encryption key, upload the encryption key to /etc/chef/ on all instances:
+2. If you do not want to use metadata for the encryption key, upload the encryption key to /etc/chef/ on all instances:
 
 ```
-for server in `ey servers -Su -e <env> --account=JobMatcher` ; do scp -o StrictHostKeyChecking=no ~/.chef/encrypted_data_bag_secret $server:/home/deploy/; ssh -o StrictHostKeyChecking=no $server 'sudo mv /home/deploy/encrypted_data_bag_secret /etc/chef/';  done
+for server in `ey servers -Su -e <env> --account=<account name>` ; do scp -o StrictHostKeyChecking=no ~/.chef/encrypted_data_bag_secret $server:/home/deploy/; ssh -o StrictHostKeyChecking=no $server 'sudo mv /home/deploy/encrypted_data_bag_secret /etc/chef/';  done
 ```
 
-4. If you are using metadata for the encryption key, add it to the account as encrypted_data_bag_secret.  Replace any carriage returns with \n so that the key is on one line in the json.
+3. If you are using metadata for the encryption key, an Engine Yard Support Engineer must add it to the account as encrypted_data_bag_secret.  Replace any carriage returns with \n so that the key is on one line in the json.
 
-5. Upload and apply Chef cookbooks:
+4. Upload and apply Chef cookbooks:
 
 ```
 ey recipes upload --apply -e <master_environment_name>
@@ -87,7 +90,7 @@ default[:establish_replication] = false
 default[:failover] = true
 ```
 
-2: Upload and apply
+2. Upload and apply
 
 Notes
 -----
