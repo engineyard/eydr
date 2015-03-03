@@ -23,8 +23,9 @@ template "/engineyard/bin/setup_replication.sh" do
   backup 0
   variables({
     :master_pass => node[:owner_pass],
-    :initiate_hostname => node[:dr_replication][node[:environment][:framework_env]][:initiate][:public_hostname],
+    :initiate_public_hostname => node[:dr_replication][node[:environment][:framework_env]][:initiate][:public_hostname],
     :slave_public_hostname => node[:dr_replication][node[:environment][:framework_env]][:slave][:public_hostname],
+    :master_public_hostname => node[:dr_replication][node[:environment][:framework_env]][:master][:public_hostname],
     :datadir => node[:datadir],
     :user => node[:owner_name],
     :db_name => node[:engineyard][:environment][:apps].first[:database_name],
