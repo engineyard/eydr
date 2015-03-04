@@ -1,13 +1,13 @@
 default[:dr_replication] = {
   :production => {
     :master => {
-      :public_hostname => "ec2-54-211-150-180.compute-1.amazonaws.com"
+      :public_hostname => ""
     },
     :initiate => {
-      :public_hostname => "ec2-54-211-150-180.compute-1.amazonaws.com"
+      :public_hostname => ""
     },
     :slave => {
-      :public_hostname => "ec2-50-112-61-103.us-west-2.compute.amazonaws.com"
+      :public_hostname => ""
     }
   },
   # The following 2 URLs are required for MySQL replication
