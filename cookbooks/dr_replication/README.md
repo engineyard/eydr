@@ -6,6 +6,7 @@ EY Cloud Disaster Recovery
 Pre-Requisites
 -------------------
 1) If you don't own the account, ensure you are a collaborator on the account.
+
 2) Ensure the following gems are installed locally:
 
 * chef (10.16.4)
