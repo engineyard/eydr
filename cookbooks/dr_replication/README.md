@@ -5,47 +5,48 @@ EY Cloud Disaster Recovery
 
 Pre-Requisites
 -------------------
-1. If you don't own the account, ensure you are a collaborator on the account.
-2. Ensure the following gems are installed locally:
+1) If you don't own the account, ensure you are a collaborator on the account.
+2) Ensure the following gems are installed locally:
 
 * chef (10.16.4)
 * knife-solo_data_bag (1.1.0)
 
-3. Create an secret key to be used to encrypt data bags:
+3) Create an secret key to be used to encrypt data bags:
 
 ```
 openssl rand -base64 512 > ~/.chef/encrypted_data_bag_secret
 ```
 
-4. Create a key to be used for the SSH tunnel and other SSH connections between the database instances:
+4) Create a key to be used for the SSH tunnel and other SSH connections between the database instances:
 
 ```
 ssh-keygen -t rsa -b 2048 -f ./id_rsa
 ```
 
-5. Add the SSH key generated in step 4 to the dashboard so that it is added to the deloy user's authorized_keys file.
+5) Add the SSH key generated in step 4 to the dashboard so that it is added to the deloy user's authorized_keys file.
 
-6. Ensure a knife.rb file is configured on your local machine:
+6) Ensure a knife.rb file is configured on your local machine:
 
 ```
 node_name           “solo”
 data_bag_path       "<cookbook_path>/data_bags"
 ```
 
-7. Create a json file containing a public and private key to be used by the SSH tunnel. Replace any carriage returns with \n so that the key is on one line in the json (see dr_keys.json.example).
-8. Create an encrypted data bag containing the ssh keys:
+7) Create a json file containing a public and private key to be used by the SSH tunnel. Replace any carriage returns with \n so that the key is on one line in the json (see dr_keys.json.example).
+
+8) Create an encrypted data bag containing the ssh keys:
 
 ```
 EDITOR=vi knife solo data bag create dr_keys <FRAMEWORK_ENV> --json-file <framework_env>.json --secret-file ~/.chef/encrypted_data_bag_secret
 ```
 
-9. In another region, configure an environment identical to the live environment and boot instances.
+9) In another region, configure an environment identical to the live environment and boot instances.
 
-10. An Engine Yard Support Engineer must update the slave environment database password to match the master environment database password.  This must be done via the awsm console and can not be done by customers. (DOC-2184)
+10) An Engine Yard Support Engineer must update the slave environment database password to match the master environment database password.  This must be done via the awsm console and can not be done by customers. (DOC-2184)
 
 Configure
 ---------
-1. Configure the following attributes in the dr_replication cookbook:
+1) Configure the following attributes in the dr_replication cookbook:
 
 ```
 default[:dr_replication] = {
@@ -66,15 +67,15 @@ default[:dr_replication] = {
   default[:failover] = false # Set to true to failover to D/R environment during Chef run
 ```
 
-2. If you do not want to use metadata for the encryption key, upload the encryption key to /etc/chef/ on all instances:
+2) If you do not want to use metadata for the encryption key, upload the encryption key to /etc/chef/ on all instances:
 
 ```
 for server in `ey servers -Su -e <env> --account=<account name>` ; do scp -o StrictHostKeyChecking=no ~/.chef/encrypted_data_bag_secret $server:/home/deploy/; ssh -o StrictHostKeyChecking=no $server 'sudo mv /home/deploy/encrypted_data_bag_secret /etc/chef/';  done
 ```
 
-3. If you are using metadata for the encryption key, an Engine Yard Support Engineer must add it to the account as encrypted_data_bag_secret.  Replace any carriage returns with \n so that the key is on one line in the json.
+3) If you are using metadata for the encryption key, an Engine Yard Support Engineer must add it to the account as encrypted_data_bag_secret.  Replace any carriage returns with \n so that the key is on one line in the json.
 
-4. Upload and apply Chef cookbooks:
+4) Upload and apply Chef cookbooks:
 
 ```
 ey recipes upload --apply -e <master_environment_name>
@@ -83,14 +84,14 @@ ey recipes upload --apply -e <slave_environment_name>
 
 Steps to Failover
 -----------------
-1. Set the failover attribute to true and establish_replication to false:
+1) Set the failover attribute to true and establish_replication to false:
 
 ```
 default[:establish_replication] = false
 default[:failover] = true
 ```
 
-2. Upload and apply
+2) Upload and apply
 
 Notes
 -----
