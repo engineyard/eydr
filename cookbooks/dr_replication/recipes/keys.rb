@@ -3,26 +3,15 @@
 # Recipe:: keys
 #
 
-if[:use_metadata_key]
-  encrypted_data_bag_secret = metadata_any_get_with_default("encrypted_data_bag_secret", "<ADD TO METADATA>")
-
-  file "/etc/chef/encrypted_data_bag_secret" do
-    owner node[:owner_name]
-    group node[:owner_name]
-    mode 0600
-    action :nothing
-    content encrypted_data_bag_secret
-  end.run_action(:create);
-end
-
-keys = Chef::EncryptedDataBagItem.load("dr_keys", node[:environment][:framework_env])
+private_key = metadata_any_get_with_default("eydr_private_key", "<ADD TO METADATA>")
+public_key = metadata_any_get_with_default("eydr_public_key", "<ADD TO METADATA>")
 
 file "/home/#{node[:owner_name]}/.ssh/id_rsa" do
   owner node[:owner_name]
   group node[:owner_name]
   mode 0600
   action :create
-  content keys["private_key"]
+  content private_key
 end
 
 file "/home/#{node[:owner_name]}/.ssh/id_rsa.pub" do
@@ -30,7 +19,7 @@ file "/home/#{node[:owner_name]}/.ssh/id_rsa.pub" do
   group node[:owner_name]
   mode 0600
   action :create
-  content keys["public_key"]
+  content public_key
 end
 
 if node[:engineyard][:environment][:db_stack_name] =~ /postgres/
@@ -52,7 +41,7 @@ if node[:engineyard][:environment][:db_stack_name] =~ /postgres/
     group "postgres"
     mode 0700
     backup 0
-    content keys["private_key"]
+    content private_key
   end
 
   file "/var/lib/postgresql/.ssh/id_rsa.pub" do
@@ -60,7 +49,7 @@ if node[:engineyard][:environment][:db_stack_name] =~ /postgres/
     group "postgres"
     mode 0700
     backup 0
-    content keys["public_key"]
+    content public_key
   end
 
   bash "configure-authorized-keys-for-postgres"  do
