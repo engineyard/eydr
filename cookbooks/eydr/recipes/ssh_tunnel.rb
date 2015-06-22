@@ -1,6 +1,6 @@
 #
-# Cookbook Name:: ssh_tunnel
-# Recipe:: default
+# Cookbook Name:: eydr
+# Recipe:: ssh_tunel
 #
 
 case node[:engineyard][:environment][:db_stack_name]

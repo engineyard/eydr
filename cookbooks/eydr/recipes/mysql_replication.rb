@@ -3,7 +3,7 @@
 # Recipe:: mysql_replication
 #
 
-include_recipe "dr_replication::install_xtrabackup"
+include_recipe "eydr::install_xtrabackup"
 
 # Drop slave replication settings in place
 template "/etc/mysql.d/replication.cnf" do
