@@ -5,7 +5,7 @@
 
 case node[:engineyard][:environment][:db_stack_name]
 when /mysql(.*)/
-  connect_port = 3307
+  connect_port = 13306
   forward_port = 3306
 when /postgres9(.*)/
   connect_port = 5433
@@ -36,7 +36,7 @@ tunnel_vars = {
   :forward_port => forward_port,
   # valid values: FWD, REV, DUAL. Determines what kind of tunnel(s) to create
   # DUAL means create both a forward and reverse tunnel
-  :tunnel_direction => 'FWD',
+  :tunnel_direction => 'DUAL',
   # the path to the ssh executable to use when making the ssh connection
   :ssh_cmd => '/usr/bin/ssh',
   # whether or not to use StrictHostKeyChecking when making the ssh connection
