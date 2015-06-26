@@ -15,7 +15,7 @@ ssh-keygen -t rsa -b 2048 -f ./id_rsa
 
 4) In another region, configure an environment identical to the live environment and boot instances.
 
-5) An Engine Yard Support Engineer must update the slave environment database password to match the master environment database password.  This must be done via the awsm console and can not be done by customers. (DOC-2184)
+5) An Engine Yard Support Engineer must update the slave environment database password to match the master environment database password.  This must be done via the awsm console and can not be done by customers. [Internal Reference: DOC-2184](https://engineyard.jiveon.com/docs/DOC-2184)
 
 Configure
 ---------
