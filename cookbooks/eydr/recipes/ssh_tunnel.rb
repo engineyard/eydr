@@ -24,9 +24,9 @@ tunnel_vars = {
   # the system user account to use when logging into the destination host
   :ssh_user => node[:owner_name],
   # the path to the private key on the instance the tunnel is from
-  :ssh_private_key => "/home/#{node[:owner_name]}/.ssh/id_rsa",
+  :ssh_private_key => "/home/#{node[:owner_name]}/.ssh/tunnel_key",
   # the path to the public key on the instance the tunnel is from
-  :ssh_public_key => "/home/#{node[:owner_name]}/.ssh/id_rsa.pub",
+  :ssh_public_key => "/home/#{node[:owner_name]}/.ssh/tunnel_key.pub",
   # the port that will be being forwarded
   :connect_port => connect_port,
   # the host on the remote side (or local side for a reverse tunnel)
