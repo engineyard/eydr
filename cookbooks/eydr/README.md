@@ -6,7 +6,7 @@ Pre-Requisites
 1) Generate SSH keys to be used by the SSH tunnel (do not use a passphrase)
 
 ```
-ssh-keygen -t rsa -b 2048 -f ./tunnel_key
+ssh-keygen -t rsa -b 2048 -f ./eydr_key
 ```
 
 2) Add the SSH key generated in step 4 to the dashboard so that it is added to the deploy user's authorized_keys file.

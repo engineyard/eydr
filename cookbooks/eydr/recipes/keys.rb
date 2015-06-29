@@ -6,7 +6,7 @@
 private_key = metadata_any_get_with_default("eydr_private_key", "<ADD TO METADATA>")
 public_key = metadata_any_get_with_default("eydr_public_key", "<ADD TO METADATA>")
 
-file "/home/#{node[:owner_name]}/.ssh/tunnel_key" do
+file "/home/#{node[:owner_name]}/.ssh/eydr_key" do
   owner node[:owner_name]
   group node[:owner_name]
   mode 0600
@@ -14,7 +14,7 @@ file "/home/#{node[:owner_name]}/.ssh/tunnel_key" do
   content private_key
 end
 
-file "/home/#{node[:owner_name]}/.ssh/tunnel_key.pub" do
+file "/home/#{node[:owner_name]}/.ssh/eydr_key.pub" do
   owner node[:owner_name]
   group node[:owner_name]
   mode 0600
@@ -36,7 +36,7 @@ if node[:engineyard][:environment][:db_stack_name] =~ /postgres/
     not_if { File.exists?('/var/lib/postgresql/.ssh/authorized_keys') }
   end
 
-  file "/var/lib/postgresql/.ssh/tunnel_key" do
+  file "/var/lib/postgresql/.ssh/eydr_key" do
     owner "postgres"
     group "postgres"
     mode 0700
@@ -44,7 +44,7 @@ if node[:engineyard][:environment][:db_stack_name] =~ /postgres/
     content private_key
   end
 
-  file "/var/lib/postgresql/.ssh/tunnel_key.pub" do
+  file "/var/lib/postgresql/.ssh/eydr_key.pub" do
     owner "postgres"
     group "postgres"
     mode 0700
@@ -53,7 +53,7 @@ if node[:engineyard][:environment][:db_stack_name] =~ /postgres/
   end
 
   bash "configure-authorized-keys-for-postgres"  do
-    code "cat /var/lib/postgresql/.ssh/tunnel_key.pub >> /var/lib/postgresql/.ssh/authorized_keys"
-    not_if 'grep "`cat /var/lib/postgresql/.ssh/tunnel_key.pub`" /var/lib/postgresql/.ssh/authorized_keys'
+    code "cat /var/lib/postgresql/.ssh/eydr_key.pub >> /var/lib/postgresql/.ssh/authorized_keys"
+    not_if 'grep "`cat /var/lib/postgresql/.ssh/eydr_key.pub`" /var/lib/postgresql/.ssh/authorized_keys'
   end
 end
