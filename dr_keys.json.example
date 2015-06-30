@@ -1,5 +1,0 @@
-# Name this file <framework_env>.json
-{"id": "<framework_env>",
-  "private_key": "<key should be on single line with \n substituted in for carriage returns>",
-  "public_key": "<public key>"
-}

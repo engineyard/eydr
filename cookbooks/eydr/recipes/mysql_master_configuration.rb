@@ -18,5 +18,5 @@ if solo?
 end
 
 if db_server?
-  include_recipe "dr_replication::install_xtrabackup"
+  include_recipe "eydr::install_xtrabackup"
 end

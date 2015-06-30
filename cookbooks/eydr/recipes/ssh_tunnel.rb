@@ -1,11 +1,11 @@
 #
-# Cookbook Name:: ssh_tunnel
-# Recipe:: default
+# Cookbook Name:: eydr
+# Recipe:: ssh_tunel
 #
 
 case node[:engineyard][:environment][:db_stack_name]
 when /mysql(.*)/
-  connect_port = 3307
+  connect_port = 13306
   forward_port = 3306
 when /postgres9(.*)/
   connect_port = 5433
@@ -24,9 +24,9 @@ tunnel_vars = {
   # the system user account to use when logging into the destination host
   :ssh_user => node[:owner_name],
   # the path to the private key on the instance the tunnel is from
-  :ssh_private_key => "/home/#{node[:owner_name]}/.ssh/id_rsa",
+  :ssh_private_key => "/home/#{node[:owner_name]}/.ssh/eydr_key",
   # the path to the public key on the instance the tunnel is from
-  :ssh_public_key => "/home/#{node[:owner_name]}/.ssh/id_rsa.pub",
+  :ssh_public_key => "/home/#{node[:owner_name]}/.ssh/eydr_key.pub",
   # the port that will be being forwarded
   :connect_port => connect_port,
   # the host on the remote side (or local side for a reverse tunnel)
@@ -36,7 +36,7 @@ tunnel_vars = {
   :forward_port => forward_port,
   # valid values: FWD, REV, DUAL. Determines what kind of tunnel(s) to create
   # DUAL means create both a forward and reverse tunnel
-  :tunnel_direction => 'FWD',
+  :tunnel_direction => 'DUAL',
   # the path to the ssh executable to use when making the ssh connection
   :ssh_cmd => '/usr/bin/ssh',
   # whether or not to use StrictHostKeyChecking when making the ssh connection

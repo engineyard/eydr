@@ -1,1 +1,1 @@
-cookbooks/dr_replication/README.md
+cookbooks/eydr/README.md
