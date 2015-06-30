@@ -9,13 +9,13 @@ Pre-Requisites
 ssh-keygen -t rsa -b 2048 -f ./eydr_key
 ```
 
-2) Add the SSH key generated in step 4 to the dashboard so that it is added to the deploy user's authorized_keys file.
+2) An Engine Yard Support Engineer must add the SSH keys generated to the metadata.  The names should be eydr_private_key and eydr_public_key.  These should be added at the account level.  The carriage returns must be replaced with \n before being inputted into the metadata web interface.
 
-3) In another region, configure an environment identical to the live environment and boot instances.
+3) Add the SSH key generated in step 1 to the dashboard so that it is added to the deploy user's authorized_keys file.
 
-4) An Engine Yard Support Engineer must update the slave environment database password to match the master environment database password.  This must be done via the awsm console and can not be done by customers. (DOC-2184)
+4) In another region, configure an environment identical to the live environment and boot instances.
 
-5) An Engine Yard Support Engineer must add the SSH keys generated to the metadata.  The names should be eydr_private_key and eydr_public_key.  These should be added at the account level.  The carriage returns must be replaced with \n before being inputted into the metadata web interface.
+5) An Engine Yard Support Engineer must update the slave environment database password to match the master environment database password.  This must be done via the awsm console and can not be done by customers. [Internal Reference: DOC-2184](https://engineyard.jiveon.com/docs/DOC-2184)
 
 Configure
 ---------
