@@ -32,11 +32,12 @@ if node[:engineyard][:environment][:db_stack_name] =~ /postgres/
   end
 
   bash "touch-postgresql-authorized-keys" do
+    user node['owner_name']
     code "touch /var/lib/postgresql/.ssh/authorized_keys"
     not_if { File.exists?('/var/lib/postgresql/.ssh/authorized_keys') }
   end
 
-  file "/var/lib/postgresql/.ssh/eydr_key" do
+  file "/var/lib/postgresql/.ssh/id_rsa" do
     owner "postgres"
     group "postgres"
     mode 0700
@@ -44,7 +45,7 @@ if node[:engineyard][:environment][:db_stack_name] =~ /postgres/
     content private_key
   end
 
-  file "/var/lib/postgresql/.ssh/eydr_key.pub" do
+  file "/var/lib/postgresql/.ssh/id_rsa.pub" do
     owner "postgres"
     group "postgres"
     mode 0700
