@@ -24,7 +24,7 @@ default[:dr_replication] = {
       :public_hostname => "" # The public hostname of the master database
     },
     :initiate => {
-      :public_hostname => "" # The public hostname of the database you want to sync the data from (can be the slave or master)
+      :public_hostname => "" # MySQL ONLY - The public hostname of the database you want to sync the data from (can be the slave or master)
     },
     :slave => {
       :public_hostname => "" # The public hostname of the disaster recovery database

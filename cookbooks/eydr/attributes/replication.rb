@@ -3,6 +3,7 @@ default[:dr_replication] = {
     :master => {
       :public_hostname => ""
     },
+    # MySQL Only
     :initiate => {
       :public_hostname => ""
     },
