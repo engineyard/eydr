@@ -11,6 +11,7 @@ template "/etc/mysql.d/replication.cnf" do
   variables({
     :server_id => node[:engineyard][:this].split("-")[1].to_i(16),
     :datadir => node[:datadir]
+    :short_version => node[:mysql][:short_version]
   })
 end
 
