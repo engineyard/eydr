@@ -10,7 +10,7 @@ template "/etc/mysql.d/replication.cnf" do
   source "replication.cnf.erb"
   variables({
     :server_id => node[:engineyard][:this].split("-")[1].to_i(16),
-    :datadir => node[:datadir]
+    :datadir => node[:datadir],
     :short_version => node[:mysql][:short_version]
   })
 end
