@@ -38,5 +38,6 @@ end
 if node[:establish_replication]
   bash "setup-replication" do
     code "/engineyard/bin/setup_replication.sh > /home/#{node['owner_name']}/setup_replication.log 2>&1"
+    timeout 7200  # default 2 hours, if you have a lot of data you may need to increase this
   end
 end
