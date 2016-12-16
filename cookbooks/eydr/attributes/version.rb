@@ -1,4 +1,4 @@
-case node['engineyard']['environment']['db_stack_name']
+case node['dna']['engineyard']['environment']['db_stack_name']
 when "mysql"
   mysql :latest_version => "5.0.51", :virtual => "5.0", :short_version => '5.0'
   datadir '/db/mysql/'

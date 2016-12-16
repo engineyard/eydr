@@ -22,7 +22,7 @@ file "/home/#{node[:owner_name]}/.ssh/eydr_key.pub" do
   content public_key
 end
 
-if node[:engineyard][:environment][:db_stack_name] =~ /postgres/
+if node[:dna][:engineyard][:environment][:db_stack_name] =~ /postgres/
   directory "/var/lib/postgresql/.ssh/" do
     owner "postgres"
     group "postgres"
@@ -32,7 +32,7 @@ if node[:engineyard][:environment][:db_stack_name] =~ /postgres/
   end
 
   bash "touch-postgresql-authorized-keys" do
-    user node['owner_name']
+    user "postgres"
     code "touch /var/lib/postgresql/.ssh/authorized_keys"
     not_if { File.exists?('/var/lib/postgresql/.ssh/authorized_keys') }
   end
@@ -54,7 +54,7 @@ if node[:engineyard][:environment][:db_stack_name] =~ /postgres/
   end
 
   bash "configure-authorized-keys-for-postgres"  do
-    code "cat /var/lib/postgresql/.ssh/eydr_key.pub >> /var/lib/postgresql/.ssh/authorized_keys"
-    not_if 'grep "`cat /var/lib/postgresql/.ssh/eydr_key.pub`" /var/lib/postgresql/.ssh/authorized_keys'
+    code "cat /var/lib/postgresql/.ssh/id_rsa.pub >> /var/lib/postgresql/.ssh/authorized_keys"
+    not_if 'grep "`cat /var/lib/postgresql/.ssh/id_rsa.pub`" /var/lib/postgresql/.ssh/authorized_keys'
   end
 end
