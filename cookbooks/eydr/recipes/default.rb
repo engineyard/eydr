@@ -30,7 +30,7 @@ end
 
 # Failover section
 if node[:failover] && node[:ec2][:public_hostname] == node[:dr_replication][node[:dna][:environment][:framework_env]][:slave][:public_hostname]
-  if db_master? || solo?
+  if ['db_master', 'solo'].include?(node['dna']['instance_role'])
     include_recipe "eydr::#{node['dna']['engineyard']['environment']['db_stack_name'].split(/[0..9]/).first}_failover"
   end
 
