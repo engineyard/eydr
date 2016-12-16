@@ -3,7 +3,7 @@
 # Recipe:: ssh_tunel
 #
 
-case node[:engineyard][:environment][:db_stack_name]
+case node[:dna][:engineyard][:environment][:db_stack_name]
 when /mysql(.*)/
   connect_port = 13306
   forward_port = 3306
@@ -17,7 +17,7 @@ tunnel_name = 'ssh_tunnel'
 # fill in missing information below
 tunnel_vars = {
   # the host hostname (an IP will work) to ssh to
-  :ssh_hostname => node[:dr_replication][node[:environment][:framework_env]][:master][:public_hostname],
+  :ssh_hostname => node[:dr_replication][node[:dna][:environment][:framework_env]][:master][:public_hostname],
   # only change this if using a non-default ssh port on the destination host,
   # such as when connecting through a gateway
   :ssh_port => 22,
@@ -52,9 +52,9 @@ tunnel_vars = {
   :ssh_known_hosts => ''
 }
 
-# set this to match on the node[:instance_role] of the instance the tunnel
+# set this to match on the node[:dna][:instance_role] of the instance the tunnel
 # should be set up on
-if db_master? || solo?
+if ['db_master', 'solo'].include?(node[:dna][:instance_role])
 
   template "/etc/init.d/#{tunnel_name}" do
     source "ssh_tunnel.initd.erb"

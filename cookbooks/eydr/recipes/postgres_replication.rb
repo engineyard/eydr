@@ -37,8 +37,8 @@ template "/engineyard/bin/setup_replication.sh" do
   mode 0755
   backup 0
   variables(
-    :master_public_hostname => node[:dr_replication][node[:environment][:framework_env]][:master][:public_hostname],
-    :slave_public_hostname => node[:dr_replication][node[:environment][:framework_env]][:slave][:public_hostname],
+    :master_public_hostname => node[:dr_replication][node[:dna][:environment][:framework_env]][:master][:public_hostname],
+    :slave_public_hostname => node[:dr_replication][node[:dna][:environment][:framework_env]][:slave][:public_hostname],
     :version => node[:postgresql][:short_version]
   )
 end

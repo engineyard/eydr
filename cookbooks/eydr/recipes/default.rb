@@ -23,15 +23,15 @@ if ['db_master', 'db_slave'].include?(node['dna']['instance_role']) && node[:ec2
 
   if node[:failover]
     Chef::Log.info "Failing over initiated..."
-    include_recipe "eydr::#{node['engineyard']['environment']['db_stack_name'].split(/[0-9]/).first}_monitoring"
+    include_recipe "eydr::#{node['dna']['engineyard']['environment']['db_stack_name'].split(/[0-9]/).first}_monitoring"
     Chef::Log.info "Current database master has been promoted to slave"
   end
 end
 
 # Failover section
-if node[:failover] && node[:ec2][:public_hostname] == node[:dr_replication][node[:environment][:framework_env]][:slave][:public_hostname]
+if node[:failover] && node[:ec2][:public_hostname] == node[:dr_replication][node[:dna][:environment][:framework_env]][:slave][:public_hostname]
   if db_master? || solo?
-    include_recipe "eydr::#{node['engineyard']['environment']['db_stack_name'].split(/[0..9]/).first}_failover"
+    include_recipe "eydr::#{node['dna']['engineyard']['environment']['db_stack_name'].split(/[0..9]/).first}_failover"
   end
 
   if node[:dns_failover][:enabled] && app_master?
